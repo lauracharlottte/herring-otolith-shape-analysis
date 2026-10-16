@@ -62,8 +62,11 @@ Quality check: `1 outline extraction/12_harmonics_check.R` draws the raw outline
 | Fig. 14 – outlier removal | `fig_outliers.R` |
 | Fig. 15 – principal component analysis | `fig_pca.R` |
 | Tables 2–5 | `stock_composition.R`, `results_tables.R` |
-| Fig. A1 – PCAs of the age subsets | `appendix_pca_age0_3_and_age1_10.R` |
-| Figs. A2–A4 – confusion matrices | `appendix_confusion_matrices.R` |
+| Tables A1, A2 – age composition by population and by subdivision | `appendix_tables_age.R` |
+| Fig. A1 – examples of otoliths removed as outliers | `appendix_outlier_examples.R` |
+| Fig. A2 – PCAs of the age subsets | `appendix_pca_age0_3_and_age1_10.R` |
+| Fig. A3 – mean outlines of the age subsets | `appendix_mean_shapes_age0_3_and_age1_10.R` |
+| Figs. A4–A6 – confusion matrices | `appendix_confusion_matrices.R` |
 
 The remaining figures of the thesis are schematic illustrations, photographs, maps or
 figures from the literature and were not produced with this code.
