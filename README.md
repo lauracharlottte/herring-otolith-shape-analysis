@@ -71,7 +71,4 @@ Quality check: `1 outline extraction/12_harmonics_check.R` draws the raw outline
 The remaining figures of the thesis are schematic illustrations, photographs, maps or
 figures from the literature and were not produced with this code.
 
-## Citation
 
-Thiel, L. C. (2026). *Otolith shape analysis of Atlantic herring populations in the
-Western Baltic Sea* [R code]. GitHub. https://github.com/lauracharlottte/herring-otolith-shape-analysis
