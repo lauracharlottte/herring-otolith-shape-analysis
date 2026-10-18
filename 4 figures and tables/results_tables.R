@@ -1,7 +1,7 @@
 ## ============================================================
 ## Results tables 1-3 (LaTeX), generated from the result files
 ## ------------------------------------------------------------
-## Writes ONE plain-text file with the LaTeX code of all four tables of
+## Writes ONE plain-text file with the LaTeX code of all three tables of
 ## the results chapter, in chapter order:
 ##   results final plots/tables/Tables results chapter (LaTeX code).txt
 ##   Table 1  population composition of all genetically assigned herring
@@ -9,7 +9,6 @@
 ##            copied in here)
 ##   Table 2  LDA performance per analysis
 ##   Table 3  class-imbalance treatments
-##   Table 4  spawning component, age 1-3 x maturity 1-2
 ## Plain .txt so the blocks can be copied into the thesis directly.
 ##
 ## Every number comes straight from Results/table{1,2,3}_*.csv.
@@ -48,13 +47,8 @@ t1 <- read.csv(file.path(RESULTS, "table1_performance.csv"), stringsAsFactors = 
 t2 <- read.csv(file.path(RESULTS, "table2_imbalance.csv"),   stringsAsFactors = FALSE)
 t3 <- read.csv(file.path(RESULTS, "table3_remaining.csv"),   stringsAsFactors = FALSE)
 
-## the no-CBH approach is not part of the thesis
-t3 <- t3 %>% filter(Analysis != "CBH excluded")
-
-## Not reported in the thesis: the WBSS-prior-0.55 treatment and the
-## age 1-3 x maturity 1-2 subset. The spawning-group model is reported
-## as the last row of the classification table.
-t2 <- t2 %>% filter(Model != "WBSS prior 0.55")
+## The spawning-group model is reported as the last row of the
+## classification table.
 t1 <- bind_rows(t1, t3 %>% filter(Analysis == "Spawning component"))
 
 ## group sizes for the table notes, from the analysed sample
@@ -214,33 +208,6 @@ tab2 <- c(
     "$N$ is the number of otoliths in the resampled final model (5 $\\times$ ", n_small,
     " and 5 $\\times$ ", formatC(n_large, format = "d", big.mark = "{,}"), "). The held-out folds used for the evaluation were ",
     "not resampled. ", CV_NOTE, " ", CM_NOTE)),
-  "\\end{table}")
-
-## ============================================================
-## Table 3 -- further analyses
-## ============================================================
-body3 <- vapply(seq_len(nrow(t3)), function(i) with(t3[i, ], row(
-  lab(Analysis), fmt_n(n), k, pm(Accuracy, AccuracySD, 1), pm(Kappa, KappaSD, 2))), "")
-
-tab3 <- c(
-  "\\begin{table}[htbp]",
-  "  \\centering",
-  paste0("  \\caption[Classification performance of the further analyses]{",
-         "Classification performance of the LDA for the spawning components and for the ",
-         "otoliths aged 1--3 years restricted to maturity stages 1--2.}"),
-  "  \\label{tab:remaining}",
-  "  \\small",
-  "  \\begin{adjustbox}{max width=\\linewidth}",
-  "  \\begin{tabular}{lrrcc}",
-  "    \\toprule",
-  "    Analysis & $n$ & $k$ & Accuracy (\\%) & $\\kappa$ \\\\",
-  "    \\midrule",
-  body3,
-  "    \\bottomrule",
-  "  \\end{tabular}",
-  "  \\end{adjustbox}",
-  note(paste0(
-    SPAWN_NOTE, " ", CV_NOTE, " $n$ = number of otoliths, $k$ = number of groups.")),
   "\\end{table}")
 
 ## ---- Table 1: copied in from stock_composition.R ---------------

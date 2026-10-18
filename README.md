@@ -11,7 +11,7 @@ with repeated 4-fold cross-validation. The approach follows Smoliński, Schade &
 (2020, *Can. J. Fish. Aquat. Sci.* 77: 674–683).
 
 **This repository contains code only.** The otolith photographs and the metadata
-(genetic assignment, age, maturity) belong to the Thünen Institute and are not included.
+(genetic assignment, age) belong to the Thünen Institute and are not included.
 
 ## Requirements
 
@@ -42,9 +42,9 @@ All analysis results are written to `Fourier and Classification/Results/`.
 | Step | Script | What it does |
 |---|---|---|
 | 1 | `1 outline extraction/ex_oto.R` | Binarises the photographs and extracts the otolith outlines |
-| 2 | `2 metadata/age_join.R`, `2 metadata/maturity_join.R` | Adds age and maturity to the metadata (age first) |
+| 2 | `2 metadata/age_join.R` | Adds age to the metadata |
 | 3 | `3 analysis/main_analysis.R` | Joins outlines and metadata, removes outliers (Mahalanobis D² on PC1–5), elliptic Fourier analysis, LDA with repeated 4-fold cross-validation for all analysis approaches (age groups, one-vs-rest, class imbalance) |
-| 4 | `3 analysis/additional_analyses.R` | Spawning groups and the remaining classification models |
+| 4 | `3 analysis/additional_analyses.R` | Harmonic-power calibration and the spawning-group model |
 | 5 | `3 analysis/harmonics_sweep.R` | Classification accuracy and kappa over 2–35 harmonics |
 
 Step 3 must run before steps 4–5 and before all figure scripts.

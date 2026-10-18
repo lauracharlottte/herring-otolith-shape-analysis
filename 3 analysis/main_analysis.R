@@ -258,8 +258,7 @@ cat("\nImbalance data set: n =", nrow(dimb), "| classes:",
 print(table(dimb$Assigned.Stock))
 
 PRIOR_EQUAL <- rep(1/K, K)
-PRIOR_WBSS  <- rep(0.45/(K-1), K); PRIOR_WBSS[match("WBSS", STOCKS)] <- 0.55
-clusterExport(cl, c("PRIOR_EQUAL", "PRIOR_WBSS"), envir = environment())
+clusterExport(cl, "PRIOR_EQUAL", envir = environment())
 
 fit_imb <- function(sampling = NULL, prior = NULL) {
   ctl <- trainControl(method = "repeatedcv", number = CV_FOLDS,
@@ -274,7 +273,6 @@ fit_imb <- function(sampling = NULL, prior = NULL) {
 variants <- list(
   "Observed priors"   = list(NULL,   NULL),
   "Equal priors"      = list(NULL,   PRIOR_EQUAL),
-  "WBSS prior 0.55"   = list(NULL,   PRIOR_WBSS),
   "Downsampling"      = list("down", NULL),
   "Upsampling"        = list("up",   NULL))
 

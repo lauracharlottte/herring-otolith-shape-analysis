@@ -8,9 +8,6 @@
 #
 #   Calibration/     harmonic power + reconstruction plots
 #   SpawningComponent/
-#   no_CBH/
-#   age1_3_maturity12/
-#   Harmonics_18/    12 vs 18, paired on identical folds
 #
 # The harmonics sweep (2-35) is a separate script because it
 # takes minutes rather than seconds: harmonics_sweep.R
@@ -262,42 +259,10 @@ capture.output({
 }, file = file.path(RESULTS, "SpawningComponent", "summary.txt"))
 cat("\n")
 
-# ============================================================
-# 4. CBH excluded
-# ============================================================
-cat("=== 3. CBH excluded ===\n")
-res$noCBH <- run_one("no_CBH", which(data$Assigned.Stock != "CBH"),
-                     data$Assigned.Stock, "CBH excluded")
-cat("\n")
-
-# ============================================================
-# 5. Age 1-3 restricted to maturity stages 1-2
-# ============================================================
-cat("=== 4. age 1-3 x maturity 1-2 ===\n")
-mat <- read.csv(file.path(DIR_DATASETS, "Otolith_Shape_DATA_SET_with_Age_Maturity.csv"),
-                fileEncoding = "UTF-8-BOM", stringsAsFactors = FALSE) %>%
-  transmute(Year = as.integer(Year), Subdivision = as.integer(Subdivision),
-            IdentNr.Picture = as.integer(IdentNr.Picture),
-            Maturity = suppressWarnings(as.numeric(as.character(Maturity)))) %>%
-  filter(!is.na(IdentNr.Picture)) %>%
-  distinct(Year, Subdivision, IdentNr.Picture, .keep_all = TRUE)
-
-data$Maturity <- data %>%
-  select(Year, Subdivision, IdentNr.Picture) %>%
-  left_join(mat, by = c("Year", "Subdivision", "IdentNr.Picture")) %>%
-  pull(Maturity)
-cat("maturity matched for", sum(!is.na(data$Maturity)), "of", nrow(data), "\n")
-
-idx_am <- which(!is.na(data$Age) & data$Age >= 1 & data$Age <= 3 &
-                !is.na(data$Maturity) & data$Maturity %in% c(1, 2))
-res$agemat <- run_one("age1_3_maturity12", idx_am, data$Assigned.Stock,
-                      "Age 1-3, maturity 1-2")
-cat("\n")
-
 stopCluster(cl); registerDoSEQ()
 
 # ============================================================
-# 6. Summary table for the three new analyses
+# 4. Summary table
 # ============================================================
 pick <- function(v, nm) if (nm %in% names(v)) unname(v[nm]) else NA_real_
 t3 <- bind_rows(lapply(res, function(r) data.frame(
