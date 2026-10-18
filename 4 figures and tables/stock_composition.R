@@ -1,33 +1,25 @@
 # ============================================================
-# Stock composition by year and ICES subdivision
+# Population composition by year and ICES subdivision
 # ------------------------------------------------------------
-# Descriptive figure + table for the opening of the results
-# chapter: which stocks were caught where, in which year.
+# Table 2 of the thesis (all genetically assigned herring) and the
+# numbers in Section 3.1 on how many fish of each population entered
+# the shape analysis.
 #
-# Two things this script is careful about:
+# Percentages are computed WITHIN a year x subdivision cell,
+# never within a year alone. Sampling effort moved between
+# subdivisions across the three surveys, and SD 23 is WBSS-rich,
+# so a percentage pooled over subdivisions mostly reports where
+# the survey sampled, not how the populations changed.
 #
-#  1. Percentages are computed WITHIN a year x subdivision cell,
-#     never within a year alone. Sampling effort moved between
-#     subdivisions across the three surveys (SD23: 67 -> 476 ->
-#     289 otoliths), and SD23 is WBSS-rich, so a percentage
-#     pooled over subdivisions mostly reports where the survey
-#     sampled, not how the stocks changed.
-#
-#  2. It reports the ANALYSED shape sample (five stocks; NEATL and
-#     NSS are excluded from the analysis) and the
-#     FULL genetically assigned set (n = 3386) side by side, so
-#     the text can state that dropping otoliths without a usable
-#     photograph did not bias the composition.
-#
-# Colours are the fixed per-population scheme from config.R, so
-# the reader can carry a colour from this figure into every
-# later plate.
+# The analysed shape sample is compared with the full genetically
+# assigned set, to show that dropping fish without a usable
+# photograph did not bias the composition.
 #
 # Writes to: Fourier and Classification/Composition/
 # ============================================================
 
 suppressPackageStartupMessages({
-  library(dplyr); library(tidyr); library(ggplot2)
+  library(dplyr); library(tidyr)
 })
 
 ## ---- load project paths ------------------------------------
@@ -52,24 +44,13 @@ out.dir <- ensure_dir(file.path(DIR_FOURIER, "Composition"))
 # ------------------------------------------------------------
 VALID <- c("BAS", "CBH", "Downs", "NEATL", "NSAS", "NSS", "WBSS")
 
-## Stack order = POP_ORDER from config.R: WBSS first, so it sits on
-## the baseline -- it is the focal population and the largest class,
-## and a segment anchored to the axis can be read off directly in all
-## twelve bars without mental subtraction. Then BAS, NSAS, Downs, CBH.
-## The config.R palette is checked over all pairs, so every
-## neighbouring pair in the stack stays distinguishable.
+## Column order = POP_ORDER from config.R: WBSS, BAS, NSAS, Downs, CBH.
 STACK <- POP_ORDER
 
 ## NEATL (n = 2) and NSS (n = 3) are excluded from the shape
 ## analysis itself (main_analysis.R), so the analysed sample
-## holds none of them. They remain only in the genetic-total set,
-## and only in its table -- never in the figure.
+## holds none of them. They remain only in the genetic-total table.
 TINY <- c("NEATL", "NSS")
-
-## Colours: COL_STOCK from config.R.
-
-INK  <- "#101821"   # all text -- never the series colour
-MUTED <- "#6B7885"
 
 # ------------------------------------------------------------
 # 1. The two data sets
@@ -112,109 +93,49 @@ long <- bind_rows(compose(A, "shape sample"),
 
 write.csv(long, file.path(out.dir, "stock_composition_long.csv"), row.names = FALSE)
 
-## Wide count table, ready to drop into the thesis
-wide <- long %>%
-  filter(Set == "shape sample", Stock %in% STACK) %>%
-  mutate(entry = ifelse(n == 0, "–", sprintf("%d (%.1f)", n, percent))) %>%
-  select(Year, SD, Stock, entry) %>%
-  pivot_wider(names_from = Stock, values_from = entry) %>%
-  left_join(count(A, Year, SD, name = "Total"), by = c("Year", "SD")) %>%
-  arrange(Year, SD)
-
-write.csv(wide, file.path(out.dir, "table_composition_counts.csv"), row.names = FALSE)
-cat("--- counts (percent within year x subdivision) ---\n")
-print(as.data.frame(wide), row.names = FALSE)
-
 ## Does dropping un-photographed fish shift the composition?
+## (a) within each year x subdivision cell
 bias <- long %>%
   filter(Stock %in% STACK) %>%
   select(Set, Year, SD, Stock, percent) %>%
   pivot_wider(names_from = Set, values_from = percent) %>%
   mutate(diff_pp = round(`shape sample` - `genetic total`, 1))
-cat("\nlargest composition shift caused by photo availability:",
+cat("largest shift within a year x subdivision cell:",
     sprintf("%.1f pp\n", max(abs(bias$diff_pp), na.rm = TRUE)))
+print(bias %>% slice_max(abs(diff_pp), n = 1, with_ties = FALSE) %>% as.data.frame(), row.names = FALSE)
 write.csv(bias, file.path(out.dir, "coverage_bias_check.csv"), row.names = FALSE)
 
-# ------------------------------------------------------------
-# 3. The figure
-# ------------------------------------------------------------
-## 100 % stacked bars, one panel per subdivision, three bars per
-## panel. Composition is the message, so the bars are normalised;
-## the sample size sits above each bar so the reader can see how
-## thin a percentage is before trusting it.
-plot_df <- long %>%
-  filter(Set == "shape sample", Stock %in% STACK) %>%
-  mutate(Stock = factor(Stock, levels = STACK),
-         SD    = factor(SD, labels = paste("SD", sort(unique(SD)))))
-
-n_lab <- plot_df %>%
-  distinct(Year, SD, cell_n)
-
-p <- ggplot(plot_df, aes(x = factor(Year), y = percent, fill = Stock)) +
-  geom_col(width = 0.68, colour = "white", linewidth = 0.5,
-           position = position_stack(reverse = TRUE)) +
-  geom_text(data = n_lab,
-            aes(x = factor(Year), y = 103, label = paste0("n=", cell_n)),
-            inherit.aes = FALSE, size = 2.9, colour = MUTED, vjust = 0) +
-  facet_wrap(~SD, nrow = 1) +
-  scale_fill_manual(values = COL_STOCK, name = NULL) +
-  scale_y_continuous(limits = c(0, 111), breaks = seq(0, 100, 25),
-                     expand = expansion(mult = c(0, 0)),
-                     labels = function(x) paste0(x, "%")) +
-  labs(x = NULL, y = "Share of otoliths in the subdivision") +
-  theme_bw(base_size = 11) +
-  theme(
-    panel.grid.major.x = element_blank(),
-    panel.grid.minor   = element_blank(),
-    panel.grid.major.y = element_line(linewidth = 0.3, colour = "grey88"),
-    panel.border       = element_rect(colour = "grey80", linewidth = 0.4),
-    strip.background   = element_blank(),
-    strip.text         = element_text(face = "bold", colour = INK, size = 10.5),
-    axis.text          = element_text(colour = INK),
-    axis.title.y       = element_text(colour = INK, margin = margin(r = 8)),
-    legend.position    = "bottom",
-    legend.key.size    = unit(4, "mm"),
-    legend.text        = element_text(colour = INK)
-  )
-
-ggsave(file.path(out.dir, "stock_composition.tiff"), p,
-       width = 18, height = 8.5, units = "cm", dpi = 600, compression = "lzw")
-ggsave(file.path(out.dir, "stock_composition.pdf"), p,
-       width = 18, height = 8.5, units = "cm")
+## (b) per population, pooled over all cells: share of the fish that
+## entered the analyses, and shift of the population proportion
+retention <- full_join(count(A, Stock, name = "analysed"),
+                       count(B %>% filter(Stock %in% STACK), Stock, name = "assigned"),
+                       by = "Stock") %>%
+  mutate(retained_pct = round(100 * analysed / assigned, 1),
+         share_analysed_pct = 100 * analysed / sum(analysed),
+         share_assigned_pct = 100 * assigned / sum(assigned),
+         shift_pp = round(share_analysed_pct - share_assigned_pct, 1)) %>%
+  mutate(across(starts_with("share"), ~ round(.x, 1))) %>%
+  arrange(match(Stock, STACK))
+cat("\nper population (Section 3.1):\n")
+print(as.data.frame(retention), row.names = FALSE)
+cat("largest shift of a population proportion:",
+    sprintf("%.1f pp\n", max(abs(retention$shift_pp))))
+write.csv(retention, file.path(out.dir, "retention_by_population.csv"), row.names = FALSE)
 
 cat("\nWritten to:", out.dir, "\n")
 
 # ------------------------------------------------------------
-# 4. LaTeX table
+# 3. LaTeX table (Table 2: all genetically assigned herring)
 # ------------------------------------------------------------
 ## booktabs only -- no multirow, no threeparttable, so it drops
 ## into any preamble. The year is printed once per block and left
-## blank on the following rows.
-##
-## SET <- "genetic total" writes the same table for all
-## genetically assigned fish instead of the analysed ones.
-if (!exists("SET")) SET <- "shape sample"
-
-## The analysed sample has only the five stocks; the genetic total
-## also carries NEATL and NSS, which get their columns there.
-tex_stocks <- if (SET == "shape sample") STACK else c(STACK, TINY)
-tiny_note <- if (SET == "shape sample") {
-  c("    absent from that year--subdivision sample. NEATL (2 fish) and NSS (3 fish)",
-    "    were excluded from the shape analyses because of their very small numbers.")
-} else {
-  c("    absent from that year--subdivision sample. NEATL and NSS are listed for",
-    "    completeness; they were excluded from the shape analyses because of their",
-    "    very small numbers.")
-}
-
-## The note has to describe whichever set SET selects, or the
-## genetic-total variant claims an outline the fish may not have.
-## ("genetic population assignment" = Assigned.Stock is one of VALID)
-note_scope <- if (SET == "shape sample") {
-  "otoliths with both a genetic population assignment and a usable outline of the right sagitta"
-} else {
-  "fish with a genetic population assignment, regardless of whether a usable photograph of the right sagitta was available"
-}
+## blank on the following rows. NEATL and NSS get their own columns.
+SET <- "genetic total"
+tex_stocks <- c(STACK, TINY)
+tiny_note <- c("    absent from that year--subdivision sample. NEATL and NSS are listed for",
+               "    completeness; they were excluded from the shape analyses because of their",
+               "    very small numbers.")
+note_scope <- "fish with a genetic population assignment, regardless of whether a usable photograph of the right sagitta was available"
 
 tex <- long %>%
   filter(Set == SET) %>%
@@ -249,13 +170,9 @@ for (i in seq_len(nrow(tex))) {
           collapse = " & "), " \\\\"))
 }
 
-## caption and label follow the set, so the two versions of this table
-## never describe the wrong sample or share a \\label
-cap_scope <- if (SET == "shape sample") "the analysed otolith sample" else
-             "all genetically assigned herring"
-cap_short <- if (SET == "shape sample") "Population composition of the analysed sample" else
-             "Population composition of all genetically assigned herring"
-tab_label <- if (SET == "shape sample") "tab:genetic-composition" else "tab:genetic-total"
+cap_scope <- "all genetically assigned herring"
+cap_short <- "Population composition of all genetically assigned herring"
+tab_label <- "tab:genetic-total"
 
 lines <- c(
 "\\begin{table}[htbp]",
@@ -295,9 +212,6 @@ tiny_note,
 "  \\end{minipage}",
 "\\end{table}")
 
-## one file per set, so the genetic-total version no longer has to be
-## renamed by hand
-tex_file <- if (SET == "shape sample") "table_composition.tex" else
-            "table_composition_genetic_total.tex"
+tex_file <- "table_composition_genetic_total.tex"
 writeLines(lines, file.path(out.dir, tex_file))
 cat("\nLaTeX table written to:", file.path(out.dir, tex_file), "\n")

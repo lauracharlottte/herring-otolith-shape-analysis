@@ -5,7 +5,7 @@
 ## the results chapter, in chapter order:
 ##   results final plots/tables/Tables results chapter (LaTeX code).txt
 ##   Table 1  population composition of all genetically assigned herring
-##            (written by stock_composition.R with SET = "genetic total",
+##            (written by stock_composition.R,
 ##            copied in here)
 ##   Table 2  LDA performance per analysis
 ##   Table 3  class-imbalance treatments
@@ -213,10 +213,10 @@ tab2 <- c(
 ## ---- Table 1: copied in from stock_composition.R ---------------
 gen_tex <- file.path(DIR_FOURIER, "Composition", "table_composition_genetic_total.tex")
 if (!file.exists(gen_tex))
-  stop('run stock_composition.R with SET <- "genetic total" first', call. = FALSE)
+  stop('run stock_composition.R first', call. = FALSE)
 if (file.mtime(gen_tex) < file.mtime(file.path(RESULTS, "dataBIO.RData")))
   warning("table_composition_genetic_total.tex is older than dataBIO.RData -- ",
-          'run stock_composition.R with SET <- "genetic total" first', call. = FALSE)
+          'run stock_composition.R first', call. = FALSE)
 tab0 <- readLines(gen_tex)
 
 ## ---- write one plain-text file ---------------------------------

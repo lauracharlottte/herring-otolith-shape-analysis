@@ -13,15 +13,17 @@
 # The sweep therefore shows the SHAPE of the curve, not numbers
 # comparable to the main model.
 #
+# The figure (Fig. 12b, c) is drawn by
+# 4 figures and tables/fig_number_of_harmonics.R from the saved CSV.
+#
 # Runtime: about ten minutes.
 # ============================================================
 
 suppressPackageStartupMessages({
-  library(dplyr); library(tidyr); library(ggplot2)
+  library(dplyr)
   library(Momocs); library(caret); library(MASS); library(doParallel)
 })
 select <- dplyr::select
-theme_set(theme_bw())
 
 SWEEP     <- 2:35          # B
 CV_FOLDS   <- 4
@@ -94,37 +96,6 @@ write.csv(sweep, file.path(out.B, "harmonics_accuracy_kappa.csv"), row.names = F
 save(sweep, file = file.path(out.B, "harmonics_accuracy_kappa.RData"))
 
 stopCluster(cl); registerDoSEQ()
-
-## ---- the sweep figure -------------------------------------
-## Accuracy and Kappa live on different scales, so they get one
-## panel each rather than a second y-axis on one panel: a dual
-## axis invites the reader to compare two things that are not
-## on the same scale.
-long <- sweep %>%
-  select(Harmonics, Accuracy, Kappa) %>%
-  pivot_longer(-Harmonics, names_to = "Metric", values_to = "Value")
-
-ggplot(long, aes(Harmonics, Value)) +
-  geom_vline(xintercept = 12, linetype = "22", colour = "#D9702D", linewidth = 0.6) +
-  geom_line(colour = "#2271B5", linewidth = 0.7) +
-  geom_point(colour = "#2271B5", size = 1.5) +
-  facet_wrap(~Metric, ncol = 1, scales = "free_y") +
-  scale_x_continuous(breaks = seq(2, max(SWEEP), 2)) +
-  labs(x = "Number of harmonics", y = NULL,
-       subtitle = paste0("LDA on PC scores (99 % cumulative variance), ",
-                         CV_FOLDS, "-fold x ", CV_REPEATS,
-                         " CV, n = ", nrow(data),
-                         ". Dashed line: the 12 harmonics used.")) +
-  theme_bw(base_size = 11) +
-  theme(panel.grid.minor = element_blank(),
-        strip.background = element_blank(),
-        strip.text = element_text(face = "bold", hjust = 0),
-        plot.subtitle = element_text(colour = "#6B7885", size = 9))
-
-ggsave(file.path(out.B, "accuracy_kappa_vs_harmonics.tiff"),
-       width = 18, height = 12, units = "cm", dpi = 600, compression = "lzw")
-ggsave(file.path(out.B, "accuracy_kappa_vs_harmonics.pdf"),
-       width = 18, height = 12, units = "cm")
 
 sink(file.path(out.B, "summary.txt"))
 cat("Harmonics sweep on the analysed sample\n")

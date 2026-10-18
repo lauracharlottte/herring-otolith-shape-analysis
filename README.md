@@ -44,13 +44,10 @@ All analysis results are written to `Fourier and Classification/Results/`.
 | 1 | `1 outline extraction/ex_oto.R` | Binarises the photographs and extracts the otolith outlines |
 | 2 | `2 metadata/age_join.R` | Adds age to the metadata |
 | 3 | `3 analysis/main_analysis.R` | Joins outlines and metadata, removes outliers (Mahalanobis D² on PC1–5), elliptic Fourier analysis, LDA with repeated 4-fold cross-validation for all analysis approaches (age groups, one-vs-rest, class imbalance) |
-| 4 | `3 analysis/additional_analyses.R` | Harmonic-power calibration and the spawning-group model |
+| 4 | `3 analysis/additional_analyses.R` | Spawning-group model |
 | 5 | `3 analysis/harmonics_sweep.R` | Classification accuracy and kappa over 2–35 harmonics |
 
 Step 3 must run before steps 4–5 and before all figure scripts.
-
-Quality check: `1 outline extraction/12_harmonics_check.R` draws the raw outline and its
-12-harmonic reconstruction on every photograph.
 
 ## Figures and tables of the thesis
 
@@ -59,9 +56,12 @@ Quality check: `1 outline extraction/12_harmonics_check.R` draws the raw outline
 | Figs. 10, 11 – sample composition; Figs. 16, 17 – mean outlines | `fig_composition_and_mean_shapes.R` |
 | Fig. 12 – number of harmonics | `fig_number_of_harmonics.R` |
 | Fig. 13 – harmonic series of one otolith | `fig_harmonic_series.R` (uses `1 outline extraction/harmonic_series_single_otolith.R`) |
-| Fig. 14 – outlier removal | `fig_outliers.R` |
+| Fig. 14 – outlier removal; χ² test of the removal rates (Section 3.3) | `fig_outliers.R` |
 | Fig. 15 – principal component analysis | `fig_pca.R` |
-| Tables 2–5 | `stock_composition.R`, `results_tables.R` |
+| PCA numbers in Sections 3.4 and 3.5 (variance explained, group means) | `pca_numbers.R` |
+| Table 2 – population composition; retention per population (Section 3.1) | `stock_composition.R` |
+| Tables 3, 4 – class imbalance, classification performance | `results_tables.R` (needs `stock_composition.R` first) |
+| Table 5 – yes/no accuracy for WBSS and BAS | `table_yes_no.R` |
 | Tables A1, A2 – age composition by population and by subdivision | `appendix_tables_age.R` |
 | Fig. A1 – examples of otoliths removed as outliers | `appendix_outlier_examples.R` |
 | Fig. A2 – PCAs of the age subsets | `appendix_pca_age0_3_and_age1_10.R` |

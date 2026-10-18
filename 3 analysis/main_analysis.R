@@ -21,18 +21,15 @@
 #   table2_imbalance.csv     <- numbers for LaTeX table 2
 #   summary.txt
 #
-# NOTE on figures: MAKE_PLOTS is FALSE by default because the
-# thesis figures are produced by the scripts in
-# 4 figures and tables/. Setting it to TRUE draws simple ggplot
-# overview plots for each analysis.
+# The thesis figures are produced by the scripts in
+# 4 figures and tables/.
 # ============================================================
 
 suppressPackageStartupMessages({
-  library(dplyr); library(tidyr); library(tibble); library(ggplot2)
+  library(dplyr); library(tibble)
   library(Momocs); library(caret); library(MASS); library(doParallel)
 })
 select <- dplyr::select
-theme_set(theme_bw())
 
 # -----------------------------
 # Settings
@@ -41,8 +38,6 @@ NB_H        <- 12          # harmonics, as in the thesis
 CV_FOLDS    <- 4
 CV_REPEATS  <- 100
 SEED        <- 2021
-PLOT_DPI    <- 300
-MAKE_PLOTS  <- FALSE       # see note above
 ## NEATL (n = 2) and NSS (n = 3) are left out of every analysis.
 ## With two and three fish these classes cannot be estimated in
 ## 4-fold cross-validation -- most folds hold none of them -- they
@@ -158,7 +153,7 @@ metrics <- function(fit) {
        sens = 100 * dg / cs, fdr = 100 * (1 - dg / rs), tb = tb)
 }
 
-## one complete sub-analysis: optional plots + LDA + output
+## one complete sub-analysis: cross-validated LDA + output
 run_analysis <- function(label, folder, idx, group_col = "Assigned.Stock",
                          group_vec = NULL) {
 
@@ -172,24 +167,6 @@ run_analysis <- function(label, folder, idx, group_col = "Assigned.Stock",
       paste(levels(grp), collapse = ", "), "\n")
 
   dcl <- cbind(Group = grp, sh)
-
-  if (MAKE_PLOTS) {
-    eSUB <- efourier(build_out(oto[idx], d), nb.h = NB_H, smooth.it = 0, norm = TRUE)
-    eSUB$fac$Group <- grp
-    ms <- MSHAPES(eSUB, fac = "Group")$shp
-    dms <- bind_rows(lapply(names(ms), function(g) data.frame(ms[[g]], Group = g)))
-    ggplot(dms) + geom_path(aes(x, y, color = Group, linetype = Group), lwd = 1) +
-      theme_void() + coord_equal() + labs(title = paste("Mean shapes --", label))
-    ggsave(file.path(dir, "mshapes.tiff"), width = 10, height = 5,
-           dpi = PLOT_DPI, compression = "lzw")
-  }
-
-  ## LDA on the whole subset (for the loadings)
-  lin <- lda(Group ~ ., dcl)
-  vi  <- data.frame(Variable = rownames(lin$scaling),
-                    Importance = rowSums(lin$scaling^2)) %>% arrange(desc(Importance))
-  if (MAKE_PLOTS)
-    write.csv(vi, file.path(dir, "variable_importance.csv"), row.names = FALSE)
 
   ## cross-validated LDA
   set.seed(SEED)

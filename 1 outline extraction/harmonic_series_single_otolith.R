@@ -6,9 +6,7 @@
 ## photo -- one image per harmonic, all in a dedicated folder.
 ## Shows how much shape detail every added harmonic buys.
 ##
-## Same overlay logic as 12_harmonics_check.R, but for a single
-## specimen across a range of harmonics instead of the whole data
-## set at a fixed 12.
+## Used for Fig. 13 (see 4 figures and tables/fig_harmonic_series.R).
 ##
 ## NOTE on the outline: oto.RData only holds the *_Right.jpg
 ## extractions from ex_oto.R. For any other photo (a _Left one,
@@ -152,7 +150,7 @@ local({
 img.dir  <- DIR_IMAGES
 oto_name <- sub("\\.jpg$", "", IMAGE_NAME)
 
-## Sibling of Harmonic12_Check/ at the project root, one subfolder
+## Folder at the project root, one subfolder
 ## per specimen so a second otolith does not overwrite the first.
 ## SERIES_OUT_DIR, if set before source(), replaces Harmonic_Series/.
 out.dir <- ensure_dir(file.path(

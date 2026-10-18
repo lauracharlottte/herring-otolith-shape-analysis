@@ -93,6 +93,15 @@ write.csv(pts5 %>% filter(removed) %>%
 
 cnt5 <- pts5 %>% group_by(Stock) %>%
   summarise(n = n(), r = sum(removed), .groups = "drop")
+
+## Did the removal affect some populations more than others?
+## Chi-square test of independence on removed vs retained per population
+## (Section 2.5; reported in Section 3.3)
+chi5 <- chisq.test(cbind(cnt5$r, cnt5$n - cnt5$r))
+cat("removed per population:",
+    paste(sprintf("%s %.1f%%", cnt5$Stock, 100 * cnt5$r / cnt5$n), collapse = ", "), "\n")
+cat("overall:", sum(cnt5$r), "of", sum(cnt5$n), sprintf("(%.1f%%)", 100 * sum(cnt5$r) / sum(cnt5$n)), "\n")
+cat(sprintf("chi-square = %.2f, df = %d, p = %.2f\n", chi5$statistic, chi5$parameter, chi5$p.value))
 lab5 <- setNames(sprintf("%s — %s of %s removed", cnt5$Stock,
                          formatC(cnt5$r, format = "d", big.mark = ","),
                          formatC(cnt5$n, format = "d", big.mark = ",")), cnt5$Stock)

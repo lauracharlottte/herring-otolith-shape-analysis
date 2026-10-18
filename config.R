@@ -87,7 +87,6 @@ DIR_OUTLINE  <- file.path(SHAPE_DIR, "Outline Extraction")
 DIR_IMAGES   <- file.path(DIR_OUTLINE, "Images")
 DIR_FOURIER  <- file.path(SHAPE_DIR, "Fourier and Classification")
 DIR_RESULTS  <- file.path(DIR_FOURIER, "Results")   # all analysis results
-DIR_CHECK    <- file.path(SHAPE_DIR, "Harmonic12_Check")
 DIR_DATASETS <- local({
   for (nm in c("data sets", "data_sets")) {
     p <- file.path(SHAPE_DIR, nm)
