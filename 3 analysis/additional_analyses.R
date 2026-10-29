@@ -30,7 +30,7 @@ SEED       <- 2021
 local({
   d <- normalizePath(getwd(), mustWork = FALSE)
   repeat {
-    hit <- c(file.path(d, "config.R"), file.path(d, "Master-Thesis", "config.R"))
+    hit <- file.path(d, "config.R")
     hit <- hit[file.exists(hit)]
     if (length(hit)) { source(hit[1]); break }
     if (identical(dirname(d), d))

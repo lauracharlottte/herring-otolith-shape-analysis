@@ -1,3 +1,23 @@
+# ============================================================
+# Outline extraction (Section 2.4 of the thesis)
+# ------------------------------------------------------------
+# Input: photographs of the right otoliths, already cropped, rotated
+# and sorted into left/right by the Uploader application (MIR-PIB);
+# these images are not part of this repository.
+#
+#   I.   binarise every photograph: greyscale, white square of
+#        100 x 100 pixels over the centre, inversion, automatic
+#        threshold (k-means on a pixel sample) x 1.4
+#   II.  trace the outline in the binary image (Momocs::import_jpg);
+#        extractions with fewer than 100 outline points count as failed
+#   III. draw every extracted outline onto its photograph
+#        (control images, Fig. 8d)
+#
+# Output: oto.RData (all outlines) and the folders Binary/ and
+# Superimposed/ next to the photographs.
+# ============================================================
+
+## half width and half height (pixels) of the white centre square
 xrange=50
 yrange=50
 adjust=0
@@ -41,13 +61,13 @@ library(jpeg)
 library(imager)
 
 ## ---- load project paths ------------------------------------
-## Searches upwards from the working directory for config.R (also in a
-## subfolder Master-Thesis/) and sources it. Afterwards SHAPE_DIR,
+## Searches upwards from the working directory for config.R
+## and sources it. Afterwards SHAPE_DIR,
 ## DIR_IMAGES, DIR_FOURIER, ensure_dir() etc. are available.
 local({
   d <- normalizePath(getwd(), mustWork = FALSE)
   repeat {
-    hit <- c(file.path(d, "config.R"), file.path(d, "Master-Thesis", "config.R"))
+    hit <- file.path(d, "config.R")
     hit <- hit[file.exists(hit)]
     if (length(hit)) { source(hit[1]); break }
     if (identical(dirname(d), d)) {
@@ -83,10 +103,10 @@ registerDoParallel(cl)
 cl
 
 
-### This loop uses "Imager" to prepare without using an external software. It first converts all images to grayscale. 
-### Then, it draws a white rectangle in the middle to help the outline detection that can sometimes fail if there
-### are darker spots on the surface of the otolith. Then it inverses the pixel values and seclect the thresholding 
-### between pure white and pure black. Binary images are saved in the associated sub-folder.
+### I. Binarisation with imager: each image is converted to greyscale, a white square
+### is drawn over the centre (darker areas such as the nucleus would otherwise be taken
+### for background), the grey values are inverted and an automatic threshold separates
+### otolith and background. Binary images are saved in the sub-folder Binary/.
 
 write.binary.path = paste(fix.image.path,"Binary/",sep="/")
 if(!file.exists(write.binary.path)){
@@ -109,7 +129,7 @@ foreach(i=seq_along(bin.todo),.errorhandling="pass", .packages = c("doParallel",
   a <- a%>%grayscale()%>%
     draw_rect( im_width/2-xrange, im_height/2-yrange, im_width/2+xrange, im_height/2+yrange, color = 1, opacity = 1, filled = TRUE) %>% 
     imchange(where = ~xs>0,fo = ~1-. )%>%#inverse color
-    threshold("auto", approx = T, adjust = 1.4+adjust)    # important! test adjust level
+    threshold("auto", approx = T, adjust = 1.4+adjust)    # automatic threshold x 1.4 (Section 2.4)
   a %>%as.cimg%>% imager::save.image( file = paste(write.binary.path,bin.todo[[i]], sep="")) 
 }
 message("1. Binary pictures are up to date!")
@@ -122,7 +142,7 @@ if (RUN_EXTRACT) {
 oto.new<-foreach(i=paste(fix.image.path,"/Binary/",jpg.list, sep=""),.errorhandling="pass", .packages = c("doParallel", "Momocs"))%dopar%{
   withCallingHandlers({ 
     setTimeLimit(10)
-    import_jpg(i, threshold = threshold)  #threshold value is also important here
+    import_jpg(i, threshold = threshold)  # binary image: 0.5 separates black and white
   }, 
   error = function(e) {
     print(i)###  error handling
@@ -165,7 +185,7 @@ errors
 jpgnames <- paste(intersect(names(oto.new), sub("\\.jpg$","",jpg.list)), ".jpg", sep="")
 
 ### This loop loads each otolith picture, extracts the coordinates of each outline generated before and  
-### superimposes them on top of another. Because the internal plot coordinates are different, we define
+### superimposes them on the photograph. Because the internal plot coordinates are different, we define
 ### X and Y coordinates for the outline so that it is aligned with the original picture.
 
 write.superimposed.path = paste(fix.image.path,"Superimposed/",sep="/")

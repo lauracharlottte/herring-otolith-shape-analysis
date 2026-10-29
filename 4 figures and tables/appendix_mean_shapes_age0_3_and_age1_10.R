@@ -1,5 +1,5 @@
 # ============================================================
-# Appendix -- mean otolith outlines of the age subsets 0-3 and 1-10
+# Fig. A4 -- mean otolith outlines of the age subsets 0-3 and 1-10
 # ------------------------------------------------------------
 # Same design as Figures 16 and 17 (fig_composition_and_mean_shapes.R):
 # the mean outline of every population against the mean outline of
@@ -11,7 +11,7 @@ suppressPackageStartupMessages({ library(dplyr); library(ggplot2); library(Momoc
 local({
   d <- normalizePath(getwd(), mustWork = FALSE)
   repeat {
-    hit <- c(file.path(d, "config.R"), file.path(d, "Master-Thesis", "config.R"))
+    hit <- file.path(d, "config.R")
     hit <- hit[file.exists(hit)]
     if (length(hit)) { source(hit[1]); break }
     if (identical(dirname(d), d)) stop("config.R not found -- please setwd() into the repository folder.", call. = FALSE)

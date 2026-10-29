@@ -1,5 +1,5 @@
 # ============================================================
-# Figure A1 -- PCAs of the age subsets 0-3 and 1-10
+# Fig. A3 -- PCAs of the age subsets 0-3 and 1-10
 # ------------------------------------------------------------
 # Same design as the two-panel PCA in the Results chapter
 # (fig_pca.R): a age 0-3, b age 1-10. Both are
@@ -16,7 +16,7 @@ suppressPackageStartupMessages({
 local({
   d <- normalizePath(getwd(), mustWork = FALSE)
   repeat {
-    hit <- c(file.path(d, "config.R"), file.path(d, "Master-Thesis", "config.R"))
+    hit <- file.path(d, "config.R")
     hit <- hit[file.exists(hit)]
     if (length(hit)) { source(hit[1]); break }
     if (identical(dirname(d), d))
@@ -32,7 +32,7 @@ rev.pdf <- ensure_dir(file.path(fig.dir, "pdf"))
 rev.png <- ensure_dir(file.path(fig.dir, "png"))
 FAM <- FONT_PLOT
 
-## ---- data: the same objects as Figures 6 and 8 ----------------
+## ---- data: the same objects as Figs. 15 and 16 ----------------
 load(file.path(RESULTS, "dataBIO.RData"))   # data
 e6 <- local({ e <- new.env(); load(file.path(RESULTS, "eOTO.RData"), envir = e); e$eOTO })
 stopifnot(nrow(e6$coe) == nrow(data))

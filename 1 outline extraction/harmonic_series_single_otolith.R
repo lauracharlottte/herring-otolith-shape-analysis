@@ -130,13 +130,13 @@ adjust    <- 0
 threshold <- 0.5
 
 ## ---- load project paths ------------------------------------
-## Searches upwards from the working directory for config.R (also in a
-## subfolder Master-Thesis/) and sources it. Afterwards SHAPE_DIR,
+## Searches upwards from the working directory for config.R
+## and sources it. Afterwards SHAPE_DIR,
 ## DIR_IMAGES, DIR_FOURIER, ensure_dir() etc. are available.
 local({
   d <- normalizePath(getwd(), mustWork = FALSE)
   repeat {
-    hit <- c(file.path(d, "config.R"), file.path(d, "Master-Thesis", "config.R"))
+    hit <- file.path(d, "config.R")
     hit <- hit[file.exists(hit)]
     if (length(hit)) { source(hit[1]); break }
     if (identical(dirname(d), d)) {

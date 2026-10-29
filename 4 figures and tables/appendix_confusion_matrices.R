@@ -1,5 +1,5 @@
 # ============================================================
-# Figures A2-A4 -- confusion matrices of all LDA models in the thesis
+# Figs. A5-A7 -- confusion matrices of all LDA models in the thesis
 # ------------------------------------------------------------
 # Every model that appears in the classification tables of the
 # Results chapter, drawn as a confusion matrix:
@@ -36,7 +36,7 @@ suppressPackageStartupMessages({
 local({
   d <- normalizePath(getwd(), mustWork = FALSE)
   repeat {
-    hit <- c(file.path(d, "config.R"), file.path(d, "Master-Thesis", "config.R"))
+    hit <- file.path(d, "config.R")
     hit <- hit[file.exists(hit)]
     if (length(hit)) { source(hit[1]); break }
     if (identical(dirname(d), d))

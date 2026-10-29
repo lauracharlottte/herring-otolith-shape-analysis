@@ -130,9 +130,9 @@ DIR_FINAL <- file.path(SHAPE_DIR, "results final plots")
 COL_STOCK <- c(
   BAS   = "#07306B",   # dark navy blue
   CBH   = "#5ACE69",   # fresh green
-  Downs = "#169597",   # Petrol / Teal
+  Downs = "#169597",   # teal
   NSAS  = "#2B5BD1",   # royal blue
-  WBSS  = "#D9702D"    # Orange
+  WBSS  = "#D9702D"    # orange
 )
 
 ## Order of the populations in ALL figures and tables (legends,
@@ -143,21 +143,6 @@ COL_STOCK <- c(
 ## the variable names in the code (Assigned.Stock, COL_STOCK ...) stay.
 POP_ORDER   <- c("WBSS", "BAS", "NSAS", "Downs", "CBH")
 STOCK_ORDER <- POP_ORDER   # alias used in some figure scripts
-
-## NEATL (n = 2) and NSS (n = 3) deliberately get NO colour of their own.
-## Seven categorical hues are more than colour alone can carry -- every
-## attempt ended at a CVD distance of 1.5-4.3. For five fish a second
-## channel is enough: shape instead of colour. (Both are excluded from
-## the analysis in main_analysis.R.)
-COL_TINY   <- "#5A6572"
-SHAPE_TINY <- c(NEATL = 2, NSS = 0)   # open triangle, open square
-
-## Spawning group: deliberately coded by season.
-COL_SPAWN <- c(
-  "spring spawner" = "#5ACE69",
-  "autumn spawner" = "#D9702D",
-  "winter spawner" = "#2B5BD1"
-)
 
 ## ------------------------------------------------------------
 ## Font for all figures
@@ -175,7 +160,6 @@ FONT_PLOT <- local({
   "serif"
 })
 
-COL_BAR <- "#169597"   # single-colour bars (variable importance)
 COL_INK <- "#101821"   # text in figures -- never a series colour
 COL_MUT <- "#6B7885"   # secondary text, annotations in figures
 

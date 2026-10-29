@@ -1,5 +1,5 @@
 # ============================================================
-# Appendix -- examples of otoliths removed as outliers
+# Fig. A1 -- examples of otoliths removed as outliers
 # ------------------------------------------------------------
 # Six control images (extracted outline drawn on the photograph,
 # from ex_oto.R) of otoliths removed by the D^2 rule, one or two per
@@ -13,7 +13,7 @@ suppressPackageStartupMessages(library(magick))
 local({
   d <- normalizePath(getwd(), mustWork = FALSE)
   repeat {
-    hit <- c(file.path(d, "config.R"), file.path(d, "Master-Thesis", "config.R"))
+    hit <- file.path(d, "config.R")
     hit <- hit[file.exists(hit)]
     if (length(hit)) { source(hit[1]); break }
     if (identical(dirname(d), d)) stop("config.R not found -- please setwd() into the repository folder.", call. = FALSE)

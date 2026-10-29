@@ -51,7 +51,7 @@ EXCLUDE_STOCKS <- c("NEATL", "NSS")
 local({
   d <- normalizePath(getwd(), mustWork = FALSE)
   repeat {
-    hit <- c(file.path(d, "config.R"), file.path(d, "Master-Thesis", "config.R"))
+    hit <- file.path(d, "config.R")
     hit <- hit[file.exists(hit)]
     if (length(hit)) { source(hit[1]); break }
     if (identical(dirname(d), d))
@@ -218,10 +218,10 @@ t1 <- bind_rows(lapply(res, function(r) data.frame(
   Sens_WBSS = pick(r$sens, "WBSS"), Sens_BAS = pick(r$sens, "BAS"),
   FDR_WBSS  = pick(r$fdr,  "WBSS"), FDR_BAS  = pick(r$fdr,  "BAS"))))
 write.csv(t1, file.path(RESULTS, "table1_performance.csv"), row.names = FALSE)
-cat("\n--- Table 1 ---\n"); print(t1, digits = 4)
+cat("\n--- Classification performance (thesis Tab. 4) ---\n"); print(t1, digits = 4)
 
 # ============================================================
-# 6. Class-imbalance analysis for table 2
+# 6. Class-imbalance analysis (thesis Tab. 3)
 # ============================================================
 imb.dir <- ensure_dir(file.path(RESULTS, "Imbalance"))
 ## The same five stocks as every other analysis, now that NEATL and

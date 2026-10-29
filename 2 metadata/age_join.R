@@ -10,13 +10,13 @@ library(readr)
 
 ## ---- 1. Load main dataset (from the Outline Extraction folder) ----
 ## ---- load project paths ------------------------------------
-## Searches upwards from the working directory for config.R (also in a
-## subfolder Master-Thesis/) and sources it. Afterwards SHAPE_DIR,
+## Searches upwards from the working directory for config.R
+## and sources it. Afterwards SHAPE_DIR,
 ## DIR_IMAGES, DIR_FOURIER, ensure_dir() etc. are available.
 local({
   d <- normalizePath(getwd(), mustWork = FALSE)
   repeat {
-    hit <- c(file.path(d, "config.R"), file.path(d, "Master-Thesis", "config.R"))
+    hit <- file.path(d, "config.R")
     hit <- hit[file.exists(hit)]
     if (length(hit)) { source(hit[1]); break }
     if (identical(dirname(d), d)) {
@@ -44,19 +44,16 @@ age2024 <- read.csv(file.path(in.dir, "GERAS2024_MSA.csv"), stringsAsFactors = F
   rename(indivCODE = TUBE_ID, Age = age)
 
 ## ---- 4. 2025 ages ----
-age2025 <- read_excel(file.path(in.dir, "GERAS2025_SB855_2025_SnglIOR_WITHgenID_andPopassign_for Leo.xlsx")) %>%
+## (the 2025 file is found by its prefix; the full name is an internal file name)
+f2025 <- list.files(in.dir, pattern = "^GERAS2025_SB855.*\\.xlsx$", full.names = TRUE)
+stopifnot(length(f2025) == 1)
+age2025 <- read_excel(f2025) %>%
   mutate(Haul = as.character(station), IdentNr = as.character(IDENTNR)) %>%
   select(Haul, IdentNr, Age = age)
 
-## ---- 5. Combine all years into one age lookup table ----
-age_all <- bind_rows(
-  age2023 %>% mutate(Age = as.character(Age)),
-  age2024 %>% mutate(Age = as.character(Age)),
-  age2025 %>% mutate(Age = as.character(Age))
-) %>%
-  mutate(Age = as.numeric(Age))  # turns any non-numeric entries (e.g. "NA", "NB") into NA
-
-## ---- 6. Join onto main dataset ----
+## ---- 5. Join onto main dataset ----
+## 2023 and 2024 are matched by the individual code, 2025 by haul and
+## fish number; non-numeric age entries (e.g. "NA", "NB") become NA.
 data <- data %>%
   mutate(Haul = as.character(Haul), IdentNr = as.character(IdentNr)) %>%
   left_join(
@@ -70,7 +67,7 @@ data <- data %>%
   mutate(Age = coalesce(Age.x, Age.y)) %>%
   select(-Age.x, -Age.y)
 
-## ---- 7. DIAGNOSTIC: check match rate per year ----
+## ---- 6. DIAGNOSTIC: check match rate per year ----
 match_summary <- data %>%
   group_by(Year) %>%
   summarise(
@@ -81,12 +78,12 @@ match_summary <- data %>%
   )
 print(match_summary)
 
-## ---- 8. See exactly which rows failed to match, for spot-checking ----
+## ---- 7. See exactly which rows failed to match, for spot-checking ----
 unmatched <- data %>% filter(is.na(Age))
 write.csv(unmatched, file.path(in.dir, "unmatched_age.csv"), row.names = FALSE)
 cat("Number of unmatched rows:", nrow(unmatched), "-- see unmatched_age.csv\n")
 
-## ---- 9. Save the age-annotated dataset ----
+## ---- 8. Save the age-annotated dataset ----
 write.csv(data, file.path(in.dir, "Otolith_Shape_DATA_SET_with_Age.csv"), row.names = FALSE)
 save(data, file = file.path(in.dir, "dataBIO_with_Age.RData"))
 

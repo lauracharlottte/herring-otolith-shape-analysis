@@ -1,14 +1,15 @@
 ## ============================================================
-## Results tables 1-3 (LaTeX), generated from the result files
+## Results tables (LaTeX), generated from the result files
 ## ------------------------------------------------------------
-## Writes ONE plain-text file with the LaTeX code of all three tables of
-## the results chapter, in chapter order:
+## Writes ONE plain-text file with the LaTeX code of three tables of
+## the Results chapter (the values were transferred to the thesis):
 ##   results final plots/tables/Tables results chapter (LaTeX code).txt
-##   Table 1  population composition of all genetically assigned herring
-##            (written by stock_composition.R,
-##            copied in here)
-##   Table 2  LDA performance per analysis
-##   Table 3  class-imbalance treatments
+##   Tab. 2  population composition of all genetically assigned herring
+##           (written by stock_composition.R, copied in here)
+##   Tab. 3  class-imbalance treatments
+##   Tab. 4  LDA performance per analysis
+## The internal names table1/table2 of the result files refer to Tab. 4
+## and Tab. 3 of the thesis, respectively.
 ## Plain .txt so the blocks can be copied into the thesis directly.
 ##
 ## Every number comes straight from Results/table{1,2,3}_*.csv.
@@ -21,7 +22,7 @@
 ##
 ## Needs \usepackage{booktabs} and \usepackage{adjustbox} in the thesis
 ## preamble. adjustbox shrinks a table only if it is wider than the text
-## (Table 3 at a 12 pt base font); otherwise it changes nothing.
+## (Tab. 3 at a 12 pt base font); otherwise it changes nothing.
 ## ============================================================
 
 suppressPackageStartupMessages(library(dplyr))
@@ -30,7 +31,7 @@ suppressPackageStartupMessages(library(dplyr))
 local({
   d <- normalizePath(getwd(), mustWork = FALSE)
   repeat {
-    hit <- c(file.path(d, "config.R"), file.path(d, "Master-Thesis", "config.R"))
+    hit <- file.path(d, "config.R")
     hit <- hit[file.exists(hit)]
     if (length(hit)) { source(hit[1]); break }
     if (identical(dirname(d), d))
@@ -98,7 +99,7 @@ CM_NOTE <- paste0("Correctly classified and falsely assigned were calculated fro
   "assigned to it) and therefore do not add up to 100\\%.")
 
 ## ============================================================
-## Table 1 -- LDA performance per analysis (thesis: Table 2)
+## LDA performance per analysis (thesis: Tab. 4)
 ## ============================================================
 ## Correctly classified / falsely assigned for ALL five populations,
 ## computed from the saved models exactly as main_analysis.R does
@@ -166,7 +167,7 @@ tab1 <- c(
   "\\end{table}")
 
 ## ============================================================
-## Table 2 -- class-imbalance treatments (full data set; thesis: Table 3)
+## Class-imbalance treatments (full data set; thesis: Tab. 3)
 ## ============================================================
 sens2 <- paste0("Sens_", POP_ORDER); fdr2 <- paste0("FDR_", POP_ORDER)
 stopifnot(all(c(sens2, fdr2) %in% names(t2)))
@@ -210,7 +211,7 @@ tab2 <- c(
     "not resampled. ", CV_NOTE, " ", CM_NOTE)),
   "\\end{table}")
 
-## ---- Table 1: copied in from stock_composition.R ---------------
+## ---- Tab. 2: copied in from stock_composition.R ---------------
 gen_tex <- file.path(DIR_FOURIER, "Composition", "table_composition_genetic_total.tex")
 if (!file.exists(gen_tex))
   stop('run stock_composition.R first', call. = FALSE)
@@ -225,12 +226,11 @@ txt <- c(
   "TABLES FOR THE RESULTS CHAPTER -- LaTeX code",
   "",
   "Copy each block into the thesis. Needs \\usepackage{booktabs} and \\usepackage{adjustbox} in the preamble.",
-  "Generated from the result files by Master-Thesis/4 figures and tables/results_tables.R",
-  "(Table 1 by stock_composition.R). Do not change numbers by hand -- run the scripts again.",
-  "Table numbers = order in the Results chapter; LaTeX numbers them automatically.",
-  banner("TABLE 1 -- Population composition of all genetically assigned herring (Section 3.1)"), tab0,
-  banner("TABLE 2 -- Classification performance per analysis (Section 3.7)"), tab1,
-  banner("TABLE 3 -- Class-imbalance treatments (Section 3.7)"), tab2)
+  "Generated from the result files by 4 figures and tables/results_tables.R",
+  "(Tab. 2 by stock_composition.R). Do not change numbers by hand -- run the scripts again.",
+  banner("TAB. 2 -- Population composition of all genetically assigned herring (Section 3.1)"), tab0,
+  banner("TAB. 3 -- Class-imbalance treatments (Section 3.6.1)"), tab2,
+  banner("TAB. 4 -- Classification performance per analysis (Section 3.6.2)"), tab1)
 f <- file.path(out.dir, "Tables results chapter (LaTeX code).txt")
 writeLines(txt, f)
 cat("written:", f, "\n")

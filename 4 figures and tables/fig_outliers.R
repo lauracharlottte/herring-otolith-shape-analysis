@@ -20,7 +20,7 @@ suppressPackageStartupMessages({
 local({
   d <- normalizePath(getwd(), mustWork = FALSE)
   repeat {
-    hit <- c(file.path(d, "config.R"), file.path(d, "Master-Thesis", "config.R"))
+    hit <- file.path(d, "config.R")
     hit <- hit[file.exists(hit)]
     if (length(hit)) { source(hit[1]); break }
     if (identical(dirname(d), d))
@@ -96,7 +96,7 @@ cnt5 <- pts5 %>% group_by(Stock) %>%
 
 ## Did the removal affect some populations more than others?
 ## Chi-square test of independence on removed vs retained per population
-## (Section 2.5; reported in Section 3.3)
+## (Section 2.6; reported in Section 3.3)
 chi5 <- chisq.test(cbind(cnt5$r, cnt5$n - cnt5$r))
 cat("removed per population:",
     paste(sprintf("%s %.1f%%", cnt5$Stock, 100 * cnt5$r / cnt5$n), collapse = ", "), "\n")
